@@ -16,7 +16,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 
 class MainActivity : AppCompatActivity() {
-
+    var height: Int? =null
+    var lastLineTop:Int=0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,17 +25,32 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         (editor as DragonEdittext).setCursorCallback { start: Int, end: Int ->
             val lineForOffset = editor.layout.getLineForOffset(start)
-            val lineTop = editor.layout.getLineTop(lineForOffset)
+//            val scrollValue = editor.layout.getLineBottom(start) - editor.layout.getLineTop(start)
+            val lineTop = editor.layout.getLineBaseline(lineForOffset)
             val layoutParams = editor.layoutParams as FrameLayout.LayoutParams
-            val totalParentHeight = (editor.parent as View).height
-            val lineTopFromCurrentVisible = lineTop % totalParentHeight
-            if(lineTop<totalParentHeight/2){
+            if(height==null){
+                val totalParentHeight=Rect()
+                (editor.parent as View).getLocalVisibleRect(totalParentHeight)
+                height=(totalParentHeight.height()/2)
+
+
+            }
+            editor.translationY= height!!.toFloat()
+            if (lastLineTop!=lineTop) {
+                (editor.parent as ScrollView).isSmoothScrollingEnabled=true
+                (editor.parent as ScrollView).scrollTo(0,lineTop)
+                lastLineTop=lineTop
+            }
+            val lineTopFromCurrentVisible =   height!!
+
+
+
+            /*if(lineTop<totalParentHeight.height()/2){
                 layoutParams.topMargin = (editor.parent as View).height.div(2).minus(lineTopFromCurrentVisible)
             } else {
                 layoutParams.topMargin = lineTopFromCurrentVisible.minus((editor.parent as View).height.div(2))
-            }
-
-            editor.layoutParams = layoutParams
+            }*/
+//            editor.layoutParams = layoutParams
         }
     }
 }

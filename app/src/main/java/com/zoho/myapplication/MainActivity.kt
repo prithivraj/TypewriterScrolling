@@ -1,22 +1,15 @@
 package com.zoho.myapplication
 
-import android.graphics.Paint
 import android.graphics.Rect
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout
-import android.text.StaticLayout
-import android.text.TextPaint
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ScrollView
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
 
 class MainActivity : AppCompatActivity() {
-    var height: Int? =null
+    var height: Int =0
     var lastLineTop:Int=0
 
 
@@ -28,19 +21,30 @@ class MainActivity : AppCompatActivity() {
 //            val scrollValue = editor.layout.getLineBottom(start) - editor.layout.getLineTop(start)
             val lineTop = editor.layout.getLineBaseline(lineForOffset)
             val layoutParams = editor.layoutParams as FrameLayout.LayoutParams
-            if(height==null){
+            if(height==0){
                 val totalParentHeight=Rect()
-                (editor.parent as View).getLocalVisibleRect(totalParentHeight)
+                (editor.parent.parent as ScrollView).getLocalVisibleRect(totalParentHeight)
                 height=(totalParentHeight.height()/2)
-
-
+                topPadding.layoutParams.height=height
+                bottomPadding.layoutParams.height=height
             }
-            editor.translationY= height!!.toFloat()
-            if (lastLineTop!=lineTop) {
-                (editor.parent as ScrollView).isSmoothScrollingEnabled=true
-                (editor.parent as ScrollView).scrollTo(0,lineTop)
-                lastLineTop=lineTop
+            /*if(lineTop<height) {
+                editor.translationY = height!!.toFloat()-lineTop
+                Log.e("first",""+height+" "+lineTop+" "+editor.translationY+" "+(editor.parent as ScrollView).maxScrollAmount)
             }
+            *//*else if(((editor.parent as ScrollView).height-height)<lineTop){
+                editor.translationY = (((editor.parent as ScrollView).height-height)-lineTop).toFloat()
+                Log.e("last",""+height+" "+lineTop+" "+editor.translationY)
+
+            }*//*
+            else*/ if (lastLineTop!=lineTop) {
+            (editor.parent.parent as ScrollView).isSmoothScrollingEnabled=true
+            (editor.parent.parent as ScrollView).scrollTo(0,lineTop)
+            Log.e("mid",""+height+" "+lineTop+" "+editor.translationY)
+
+        }
+            lastLineTop=lineTop
+//            (editor.parent.parent as ScrollView).scrollTo(0,lineTop)
             val lineTopFromCurrentVisible =   height!!
 
 
